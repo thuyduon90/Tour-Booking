@@ -1,4 +1,5 @@
 const Tour = require('../models/tourModel');
+const APIFeatures = require('../utils/apiFeatures');
 
 exports.aliasTopTours = (req, res, next) => {
     req.query.limit = '5';
@@ -10,57 +11,16 @@ exports.aliasTopTours = (req, res, next) => {
 
 exports.getAllTours = async(req, res) => {
     try {
-        let queryObj = {...req.query };
-        const excludedField = [
-            'page',
-            'sort',
-            'limit',
-            'fields',
-        ];
-        excludedField.forEach(
-            el => delete queryObj[el]
-        );
-        queryObj = JSON.parse(
-            JSON.stringify(queryObj).replace(
-                /\b(gte|gt|lt|lte)\b/g,
-                match => `$${match}`
-            )
+        const feature = new APIFeatures(
+            Tour.find(),
+            req.query
         );
         /* GENERATE QUERY */
-        const query = Tour.find(queryObj);
-        /* Sort */
-        if (req.query.sort) {
-            const sortBy = req.query.sort
-                .split(',')
-                .join(' ');
-            query.sort(sortBy);
-        } else {
-            query.sort('-createdAT');
-        }
-        /* Select Field */
-        if (req.query.fields) {
-            const fields = req.query.fields
-                .split(',')
-                .join(' ');
-            query.select(fields);
-        } else {
-            query.select('-__v');
-        }
-        /* Pagination */
-        const page = req.query.page * 1 || 1;
-        const limit = req.query.limit * 1 || 100;
-        const skip = (page - 1) * limit;
-        query.skip(skip).limit(limit);
-
-        if (req.query.page) {
-            const numTour = await Tour.countDocuments();
-            if (skip >= numTour) {
-                throw new Error(
-                    'This page does not exist.'
-                );
-            }
-        }
-
+        const query = feature
+            .filterKeyword()
+            .sort()
+            .selectFields()
+            .paginate().query;
         /* EXECUTE QUERY */
         const tours = await query;
 
@@ -160,4 +120,3 @@ exports.deleteTourByID = async(req, res) => {
         });
     }
 };
-//
