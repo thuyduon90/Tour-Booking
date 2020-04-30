@@ -37,6 +37,8 @@ exports.getTourById = catchAsync(async(req, res, next) => {
     const id = req.params.id;
     const tour = await Tour.findById(id);
     if (tour === null) {
+        console.log('day');
+
         return next(
             new appError('There is no any tour with that ID', 404)
         );
