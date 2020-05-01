@@ -1,5 +1,15 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
+
+process.on('uncaughtException', err => {
+    console.log(err.name);
+    console.log(err.message);
+    console.log(
+        'UNCAUGHT EXCEPTION 🎆. Now, server will shutdown...'
+    );
+    process.exit(1);
+});
+
 dotenv.config({ path: './config.env' });
 
 const DB = process.env.DATABASE.replace(
@@ -34,3 +44,5 @@ process.on('unhandledRejection', err => {
         process.exit(1);
     });
 });
+
+console.log(x);
