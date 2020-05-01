@@ -1,7 +1,30 @@
 const appError = require(`${__dirname}/../utils/appError`);
 
 const handleCastErrorDB = error => {
-    return new appError(`invalid ${error.path}`, 400);
+    return new appError(
+        `invalid ${error.path}, please double check your ${error.path}!`,
+        400
+    );
+};
+
+const handleDuplicateFieldsDB = error => {
+    const message = error.errmsg.match(
+        /(["'])(?:(?=(\\?))\2.)*?\1/
+    )[0];
+    return new appError(
+        `Duplicate field value: ${message}. Please use another value!`,
+        400
+    );
+};
+
+const handleValidationErrorDB = error => {
+    let errors = Object.values(error.errors).map(
+        val => val.message
+    );
+    return new appError(
+        `In valid data. ${errors.join(', ')}`,
+        400
+    );
 };
 
 const sendErrorDev = (err, res) => {
@@ -37,15 +60,21 @@ module.exports = (err, req, res, next) => {
         console.log(err);
         sendErrorDev(err, res);
     } else if (process.env.NODE_ENV === 'production') {
-        // console.log(err);
-
-        //convert CastError of Database  to Opperational error
         if (err.name === 'CastError') {
             let error = {...err };
             error = handleCastErrorDB(error);
-            sendErrorProd(error, res);
-        } else {
-            sendErrorProd(err, res);
+            return sendErrorProd(error, res);
         }
+        if (err.code === 11000) {
+            let error = {...err };
+            error = handleDuplicateFieldsDB(error);
+            return sendErrorProd(error, res);
+        }
+        if (err.name === 'ValidationError') {
+            let error = {...err };
+            error = handleValidationErrorDB(error);
+            return sendErrorProd(error, res);
+        }
+        sendErrorProd(err, res);
     }
 };
