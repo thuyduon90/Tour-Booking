@@ -20,6 +20,17 @@ const app = require(`${__dirname}/app`);
 
 /* START SERVER */
 const port = process.env.PORT || 4000;
-app.listen(port, () => {
+const server = app.listen(port, () => {
     console.log(`App running on port ${port}...`);
+});
+
+process.on('unhandledRejection', err => {
+    console.log(err.name);
+    console.log(err.message);
+    console.log(
+        'UNHANDLED REJECTION 🎆. Now, server will shutdown...'
+    );
+    server.close(() => {
+        process.exit(1);
+    });
 });
