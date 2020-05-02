@@ -1,13 +1,27 @@
 const fs = require('fs');
 
+const User = require('../models/userModel');
+const APIFeatures = require('../utils/apiFeatures');
+
+const catchAsync = require(`${__dirname}/../utils/catchAsync`);
+// const appError = require(`${__dirname}/../utils/appError`);
+
 const users = JSON.parse(
     fs.readFileSync(
         `${__dirname}/../dev-data/data/users.json`
     )
 );
 
-exports.getAllUsers = (req, res) => {
-    console.log(req.requetTime);
+exports.getAllUsers = catchAsync(async(req, res, next) => {
+    const feature = new APIFeatures(User.find(), req.query);
+    /* GENERATE QUERY */
+    const query = feature
+        .filterKeyword()
+        .sort()
+        .selectFields()
+        .paginate().query;
+    /* EXECUTE QUERY */
+    const users = await query;
 
     res.status(200).json({
         status: 'success',
@@ -17,7 +31,7 @@ exports.getAllUsers = (req, res) => {
             users,
         },
     });
-};
+});
 
 exports.getUserById = (req, res) => {
     console.log(req.params);
@@ -40,9 +54,7 @@ exports.getUserById = (req, res) => {
 
 exports.createUser = (req, res) => {
     const newId = users[users.length - 1].id + 1;
-    const newuser = Object.assign({ id: newId },
-        req.body
-    );
+    const newuser = Object.assign({ id: newId }, req.body);
     users.push(newuser);
     fs.writeFile(
         `${__dirname}/dev-data/data/users.json`,

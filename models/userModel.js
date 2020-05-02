@@ -31,6 +31,7 @@ const userSchema = new mongoose.Schema({
             40,
             'password must be shorter than 40 characters',
         ],
+        select: false,
     },
     passwordConfirm: {
         type: String,
@@ -51,6 +52,18 @@ userSchema.pre('save', async function(next) {
     this.passwordConfirm = undefined;
     next();
 });
+
+/* INSTANCE METHOD */
+
+userSchema.methods.correctPassword = async function(
+    candidatePasswod,
+    userPassword
+) {
+    return await bcrypt.compare(
+        candidatePasswod,
+        userPassword
+    );
+};
 
 const User = mongoose.model('User', userSchema);
 
