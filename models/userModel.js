@@ -20,6 +20,11 @@ const userSchema = new mongoose.Schema({
         ],
     },
     photo: String,
+    role: {
+        type: String,
+        enum: ['user', 'guide', 'lead-guide', 'admin'],
+        default: 'user',
+    },
     password: {
         type: String,
         required: [true, 'Password must be required'],
@@ -72,7 +77,6 @@ userSchema.methods.changePasswordAfter = function(
     if (this.passwordChangedAt) {
         const changedTimestamp =
             (this.passwordChangedAt.getTime() * 1) / 1000;
-        console.log(changedTimestamp, JWTTimestampIssued);
         return JWTTimestampIssued < changedTimestamp;
     }
     return false;
