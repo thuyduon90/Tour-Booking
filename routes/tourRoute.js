@@ -1,7 +1,8 @@
 const express = require('express');
 const tourRouter = express.Router();
 
-const tourController = require('../controllers/tourController');
+const tourController = require('./../controllers/tourController');
+const authController = require('./../controllers/authController');
 
 // tourRouter.param('id', tourController.checkId);
 
@@ -22,7 +23,7 @@ tourRouter
 
 tourRouter
     .route('/')
-    .get(tourController.getAllTours)
+    .get(authController.protect, tourController.getAllTours)
     .post(tourController.createTour);
 
 tourRouter

@@ -44,6 +44,7 @@ const userSchema = new mongoose.Schema({
             message: 'Not a simmilar password!',
         },
     },
+    passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function(next) {
@@ -63,6 +64,18 @@ userSchema.methods.correctPassword = async function(
         candidatePasswod,
         userPassword
     );
+};
+
+userSchema.methods.changePasswordAfter = function(
+    JWTTimestampIssued
+) {
+    if (this.passwordChangedAt) {
+        const changedTimestamp =
+            (this.passwordChangedAt.getTime() * 1) / 1000;
+        console.log(changedTimestamp, JWTTimestampIssued);
+        return JWTTimestampIssued < changedTimestamp;
+    }
+    return false;
 };
 
 const User = mongoose.model('User', userSchema);

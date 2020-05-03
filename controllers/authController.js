@@ -1,3 +1,4 @@
+const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
 const User = require('./../models/userModel');
 const catchAsync = require(`./../utils/catchAsync`);
@@ -15,6 +16,7 @@ exports.signup = catchAsync(async(req, res, next) => {
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
+        passwordChangedAt: req.body.passwordChangedAt,
     });
 
     const token = signToken(newUser._id);
@@ -38,7 +40,6 @@ exports.login = catchAsync(async(req, res, next) => {
     const user = await User.findOne({ email }).select(
         'password'
     );
-    console.log(user);
     if (!user ||
         !(await user.correctPassword(password, user.password))
     ) {
@@ -52,4 +53,49 @@ exports.login = catchAsync(async(req, res, next) => {
         status: 'success',
         token,
     });
+});
+
+exports.protect = catchAsync(async(req, res, next) => {
+    // 1) get token an check availability
+    let token;
+    if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith('Bearer')
+    ) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+    if (!token) {
+        return next(
+            new appError(
+                'You are not logged in! please login to get access.',
+                401
+            )
+        );
+    }
+    // 2) Veificate token
+    const decoded = await promisify(jwt.verify)(
+        token,
+        process.env.JWT_SECRET
+    );
+
+    //3) checkif user still exists
+    const freshUser = await User.findById(decoded.id);
+    if (!freshUser) {
+        return next(
+            new appError('This user is no longer exist', 401)
+        );
+    }
+
+    //4) check if users change password after token issue
+    if (freshUser.changePasswordAfter(decoded.iat)) {
+        return next(
+            new appError(
+                'Password have been recently changed! Please login again.',
+                401
+            )
+        );
+    }
+    // Grant access to protected routes
+    req.user = freshUser;
+    next();
 });
