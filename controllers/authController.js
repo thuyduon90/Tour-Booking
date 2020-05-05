@@ -12,6 +12,23 @@ const signToken = id => {
     });
 };
 
+const createSendToken = (user, statusCode, res) => {
+    const token = signToken(user._id);
+
+    res.status(statusCode).json({
+        status: 'success',
+        token,
+    });
+};
+
+const moveNextWithError = (
+    errorMessage,
+    statusCode,
+    next
+) => {
+    return next(new appError(errorMessage, statusCode));
+};
+
 exports.signup = catchAsync(async(req, res, next) => {
     const newUser = await User.create({
         name: req.body.name,
@@ -22,40 +39,34 @@ exports.signup = catchAsync(async(req, res, next) => {
         role: req.body.role,
     });
 
-    const token = signToken(newUser._id);
-
-    res.status(201).json({
-        status: 'success',
-        token,
-        data: {
-            user: newUser,
-        },
-    });
+    createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async(req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) {
-        return next(
-            new appError('Please provide email and password', 400)
+        return moveNextWithError(
+            'Please provide email and password',
+            400,
+            next
         );
     }
+    console.log('heehehehehe....');
+
     const user = await User.findOne({ email }).select(
         'password'
     );
     if (!user ||
         !(await user.correctPassword(password, user.password))
     ) {
-        return next(
-            new appError('Incorrect email or password', 401)
+        return moveNextWithError(
+            'Incorrect email or password',
+            401,
+            next
         );
     }
 
-    const token = signToken(user._id);
-    res.status(200).json({
-        status: 'success',
-        token,
-    });
+    createSendToken(user, 200, res);
 });
 
 exports.protect = catchAsync(async(req, res, next) => {
@@ -68,11 +79,10 @@ exports.protect = catchAsync(async(req, res, next) => {
         token = req.headers.authorization.split(' ')[1];
     }
     if (!token) {
-        return next(
-            new appError(
-                'You are not logged in! please login to get access.',
-                401
-            )
+        return moveNextWithError(
+            'You are not logged in! please login to get access.',
+            401,
+            next
         );
     }
     // 2) Veificate token
@@ -84,18 +94,19 @@ exports.protect = catchAsync(async(req, res, next) => {
     //3) checkif user still exists
     const freshUser = await User.findById(decoded.id);
     if (!freshUser) {
-        return next(
-            new appError('This user is no longer exist', 401)
+        return moveNextWithError(
+            'This user is no longer exist',
+            401,
+            next
         );
     }
 
     //4) check if users change password after token issue
     if (freshUser.changePasswordAfter(decoded.iat)) {
-        return next(
-            new appError(
-                'Password have been recently changed! Please login again.',
-                401
-            )
+        return moveNextWithError(
+            'Password have been recently changed! Please login again.',
+            401,
+            next
         );
     }
     // Grant access to protected routes
@@ -106,11 +117,10 @@ exports.protect = catchAsync(async(req, res, next) => {
 exports.restrictTo = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.user.role)) {
-            next(
-                new appError(
-                    'This user do not have pemission to perform this action',
-                    403
-                )
+            return moveNextWithError(
+                'This user do not have pemission to perform this action',
+                403,
+                next
             );
         }
         next();
@@ -124,11 +134,10 @@ exports.forgotPassword = catchAsync(
             email: req.body.email,
         });
         if (!user) {
-            next(
-                new appError(
-                    'There is no any user with this email address!',
-                    404
-                )
+            return moveNextWithError(
+                'There is no any user with this email address!',
+                404,
+                next
             );
         }
 
@@ -156,12 +165,10 @@ exports.forgotPassword = catchAsync(
             user.passwordResetToken = undefined;
             user.passwordResetExpires = undefined;
             await user.save({ validateBeforeSave: false });
-
-            return next(
-                new appError(
-                    'There is an error sending the email. Try again later!',
-                    500
-                )
+            return moveNextWithError(
+                'There is an error sending the email. Try again later!',
+                500,
+                next
             );
         }
     }
@@ -174,16 +181,16 @@ exports.resetPassword = catchAsync(
             .createHash('sha256')
             .update(req.params.token)
             .digest('hex');
-        console.log('here: ' + req.params.token);
-        console.log('here: ' + hashedToken);
         const user = await User.findOne({
             passwordResetToken: hashedToken,
             passwordResetExpires: { $gt: Date.now() },
         });
         // 2) If token has not expired, there is  user, set the new password
         if (!user) {
-            return next(
-                new appError('Token is invalid or has expired', 400)
+            return moveNextWithError(
+                'Token is invalid or has expired',
+                400,
+                next
             );
         }
         // 3) Update changedPasswordAt for the current user
@@ -193,10 +200,36 @@ exports.resetPassword = catchAsync(
         user.passwordResetExpires = undefined;
         await user.save();
         // 4) Log the user in, send JWT
-        const token = signToken(user._id);
-        res.status(200).json({
-            status: 'success',
-            token,
-        });
+        createSendToken(user, 200, res);
+    }
+);
+
+exports.updatePassword = catchAsync(
+    async(req, res, next) => {
+        // 1) Get user from collection
+        const user = await User.findById(req.user.id).select(
+            'password'
+        );
+        // 2) Check Posted password is correct
+        const {
+            password,
+            newPassword,
+            passwordConfirm,
+        } = req.body;
+        if (!(await user.correctPassword(password, user.password))) {
+            return moveNextWithError(
+                'Your current password is incorrect!',
+                401,
+                next
+            );
+        }
+        // 3) If ok, update password
+        console.log('heheheheheh');
+
+        user.password = newPassword;
+        user.passwordConfirm = passwordConfirm;
+        await user.save();
+        // 4) Log the user in, send JWT
+        createSendToken(user, 200, res);
     }
 );
