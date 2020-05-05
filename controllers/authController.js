@@ -13,11 +13,31 @@ const signToken = id => {
 };
 
 const createSendToken = (user, statusCode, res) => {
+    /* Create token */
     const token = signToken(user._id);
-
+    /* Set cookie options */
+    let cookiOptions = {
+        expires: new Date(
+            Date.now() +
+            process.env.JWT_COOKIE_EXPIRES_IN * 1000 * 3600 * 24
+        ),
+        httpOnly: true,
+    };
+    /* Production mode should use https */
+    if (process.env.NODE_ENV === 'production')
+        cookiOptions.secure = true;
+    /* Send cookie to client */
+    res.cookie('jwt', token, cookiOptions);
+    /* Ignore some sensitive fiels before send to client*/
+    user.password = undefined;
+    user.__v = undefined;
+    /* Send data back to client */
     res.status(statusCode).json({
         status: 'success',
         token,
+        data: {
+            user,
+        },
     });
 };
 
