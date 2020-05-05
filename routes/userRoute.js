@@ -11,10 +11,12 @@ userRouter.post(
     '/forgotpassword',
     authController.forgotPassword
 );
+
 userRouter.patch(
     '/resetpassword/:token',
     authController.resetPassword
 );
+
 userRouter.patch(
     '/updatepassword/',
     authController.protect,
@@ -27,6 +29,13 @@ userRouter.patch(
     userController.updateMe
 );
 
+userRouter.delete(
+    '/deleteme/',
+    authController.protect,
+    userController.deleteMe
+);
+
+/* ===================================== */
 userRouter
     .route('/')
     .get(userController.getAllUsers)
