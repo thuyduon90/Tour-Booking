@@ -4,13 +4,21 @@ const User = require('../models/userModel');
 const APIFeatures = require('../utils/apiFeatures');
 
 const catchAsync = require(`${__dirname}/../utils/catchAsync`);
-// const appError = require(`${__dirname}/../utils/appError`);
+const appError = require(`${__dirname}/../utils/appError`);
 
 const users = JSON.parse(
     fs.readFileSync(
         `${__dirname}/../dev-data/data/users.json`
     )
 );
+
+const filterObj = (obj, ...allowedFileds) => {
+    const newObj = {};
+    Object.keys(obj).forEach(el => {
+        if (allowedFileds.includes(el)) newObj[el] = obj[el];
+    });
+    return newObj;
+};
 
 exports.getAllUsers = catchAsync(async(req, res, next) => {
     const feature = new APIFeatures(User.find(), req.query);
@@ -33,6 +41,35 @@ exports.getAllUsers = catchAsync(async(req, res, next) => {
     });
 });
 
+exports.updateMe = catchAsync(async(req, res, next) => {
+    // 1) Create error if user POSTs password data
+    if (req.body.password || req.body.passwordCofirm) {
+        return next(
+            new appError(
+                'This route is not for password update. Please use /updatepassword',
+                400
+            )
+        );
+    }
+    // 2) Filter out unwanted fields
+    const filteredBody = filterObj(req.body, 'name', 'email');
+    // 3) Update user document
+    const updatedUser = await User.findByIdAndUpdate(
+        req.user._id,
+        filteredBody, { new: true, runValidators: true }
+    );
+
+    res.status(200).json({
+        status: 'Success',
+        data: {
+            user: updatedUser,
+        },
+    });
+});
+
+/* ==================================
+=====================================
+===================================== */
 exports.getUserById = (req, res) => {
     console.log(req.params);
     const id = req.params.id * 1;
