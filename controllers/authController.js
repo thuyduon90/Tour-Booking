@@ -6,6 +6,10 @@ const catchAsync = require(`./../utils/catchAsync`);
 const appError = require('./../utils/appError');
 const sendEmail = require('./../utils/email');
 
+/* **************LOCAL FUNCTIONS************************
+ ********************************************************
+ ********************************************************/
+
 const signToken = id => {
     return jwt.sign({ id }, process.env.JWT_SECRET, {
         expiresIn: process.env.JWT_EXPIRES_IN,
@@ -48,6 +52,10 @@ const moveNextWithError = (
 ) => {
     return next(new appError(errorMessage, statusCode));
 };
+
+/* **************EXPORTED FUNCTIONS*********************
+ ********************************************************
+ ********************************************************/
 
 exports.signup = catchAsync(async(req, res, next) => {
     const newUser = await User.create({
