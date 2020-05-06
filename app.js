@@ -1,6 +1,8 @@
 const express = require('express');
+
 const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 
 const AppError = require(`${__dirname}/utils/AppError`);
 const globalErrorHandler = require(`${__dirname}/controllers/errorController`);
@@ -10,11 +12,15 @@ const userRouter = require(`${__dirname}/routes/userRoute`);
 const app = express();
 
 /* GLOBAL MIDDLEWARES */
+//Set security HTTP headers
+app.use(helmet());
 
+//Development logging
 if (process.env.NODE_ENV === 'development') {
     app.use(morgan('dev'));
 }
 
+//Set request limit
 const limiter = rateLimit({
     max: 200,
     windowMs: 60 * 60 * 1000,
@@ -22,7 +28,10 @@ const limiter = rateLimit({
 });
 app.use('/api', limiter);
 
-app.use(express.json());
+//Body parser, and limit body content
+app.use(express.json({ limit: '10kb' }));
+
+// Test time spend on resquest
 app.use((req, res, next) => {
     req.requetTime = new Date().toISOString();
     next();
