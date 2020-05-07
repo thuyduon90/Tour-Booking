@@ -23,10 +23,7 @@ mongoose
 /* START SERVER */
 
 const tours = JSON.parse(
-    fs.readFileSync(
-        `${__dirname}/tours-simple.json`,
-        'utf-8'
-    )
+    fs.readFileSync(`${__dirname}/tours.json`, 'utf-8')
 );
 const importData = async() => {
     try {
@@ -57,3 +54,6 @@ if (process.argv[2] === '--import') {
 }
 
 console.log(process.argv);
+
+// RUN: node ./dev-data/data/import-dev-data.js --delete
+// RUN: node ./dev-data/data/import-dev-data.js --import
