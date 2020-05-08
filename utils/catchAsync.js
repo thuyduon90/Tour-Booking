@@ -1,5 +1,5 @@
-module.exports = funct => {
+module.exports = fn => {
     return (req, res, next) => {
-        funct(req, res, next).catch(next);
+        fn(req, res, next).catch(next);
     };
 };

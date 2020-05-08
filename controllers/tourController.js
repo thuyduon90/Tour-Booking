@@ -28,14 +28,18 @@ exports.getAllTours = catchAsync(async(req, res, next) => {
         result: tours.length,
         requetedAt: req.requetTime,
         data: {
-            tours,
-        },
+            tours
+        }
     });
 });
 
 exports.getTourById = catchAsync(async(req, res, next) => {
     const id = req.params.id;
-    const tour = await Tour.findById(id);
+    const tour = await Tour.findById(id).populate({
+        path: 'reviews',
+        select: '-__v'
+    });
+
     if (tour === null) {
         return next(
             new appError('There is no any tour with that ID', 404)
@@ -45,8 +49,8 @@ exports.getTourById = catchAsync(async(req, res, next) => {
         status: 'success',
         requetedAt: req.requetTime,
         data: {
-            tour,
-        },
+            tour
+        }
     });
 });
 
@@ -55,8 +59,8 @@ exports.createTour = catchAsync(async(req, res, next) => {
     res.status(201).json({
         status: 'success',
         data: {
-            tour: newTour,
-        },
+            tour: newTour
+        }
     });
 });
 
@@ -66,7 +70,7 @@ exports.updateTourById = catchAsync(
         const body = req.body;
         const tour = await Tour.findByIdAndUpdate(id, body, {
             new: true,
-            runValidators: true,
+            runValidators: true
         });
         if (tour === null) {
             return next(
@@ -80,8 +84,8 @@ exports.updateTourById = catchAsync(
             status: 'successfully updated',
             requetedAt: req.requetTime,
             data: {
-                tour,
-            },
+                tour
+            }
         });
     }
 );
@@ -102,8 +106,8 @@ exports.deleteTourByID = catchAsync(
             status: 'successfully deleted',
             requetedAt: req.requetTime,
             data: {
-                tour: null,
-            },
+                tour: null
+            }
         });
     }
 );
@@ -111,7 +115,7 @@ exports.deleteTourByID = catchAsync(
 exports.getTourStats = catchAsync(
     async(req, res, next) => {
         const stats = await Tour.aggregate([{
-                $match: { ratingsAverage: { $gte: 4.5 } },
+                $match: { ratingsAverage: { $gte: 4.5 } }
             },
             {
                 $group: {
@@ -121,12 +125,12 @@ exports.getTourStats = catchAsync(
                     avgRating: { $avg: '$ratingsAverage' },
                     avgPrice: { $avg: '$price' },
                     minPrice: { $min: '$price' },
-                    maxPrice: { $max: '$price' },
-                },
+                    maxPrice: { $max: '$price' }
+                }
             },
             {
-                $sort: { avgPrice: 1 },
-            },
+                $sort: { avgPrice: 1 }
+            }
             // {
             //     $match: { _id: { $ne: 'EASY' } },
             // },
@@ -135,8 +139,8 @@ exports.getTourStats = catchAsync(
             status: 'success',
             requetedAt: req.requetTime,
             data: {
-                stats,
-            },
+                stats
+            }
         });
     }
 );
@@ -145,34 +149,34 @@ exports.getMothlyPlan = catchAsync(
     async(req, res, next) => {
         const year = req.params.year;
         const plan = await Tour.aggregate([{
-                $unwind: '$startDates',
+                $unwind: '$startDates'
             },
             {
                 $match: {
                     startDates: {
                         $gte: new Date(`${year}-01-01`),
-                        $lte: new Date(`${year}-12-31`),
-                    },
-                },
+                        $lte: new Date(`${year}-12-31`)
+                    }
+                }
             },
             {
                 $group: {
                     _id: { $month: '$startDates' },
                     numTour: { $sum: 1 },
-                    tours: { $push: '$name' },
-                },
+                    tours: { $push: '$name' }
+                }
             },
             {
-                $sort: { numTour: -1 },
+                $sort: { numTour: -1 }
             },
             {
-                $addFields: { month: '$_id' },
+                $addFields: { month: '$_id' }
             },
             {
                 $project: {
-                    _id: 0,
-                },
-            },
+                    _id: 0
+                }
+            }
             // {
             //     $limit: 3,
             // },
@@ -182,8 +186,8 @@ exports.getMothlyPlan = catchAsync(
             requetedAt: req.requetTime,
             results: plan.length,
             data: {
-                plan,
-            },
+                plan
+            }
         });
     }
 );

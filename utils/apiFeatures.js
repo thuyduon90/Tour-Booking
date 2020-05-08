@@ -11,9 +11,7 @@ class APIFeatures {
             'limit',
             'fields',
         ];
-        excludedField.forEach(
-            el => delete queryObj[el]
-        );
+        excludedField.forEach(el => delete queryObj[el]);
         queryObj = JSON.parse(
             JSON.stringify(queryObj).replace(
                 /\b(gte|gt|lt|lte)\b/g,
@@ -47,8 +45,7 @@ class APIFeatures {
     }
     paginate() {
         const page = this.queryString.page * 1 || 1;
-        const limit =
-            this.queryString.limit * 1 || 100;
+        const limit = this.queryString.limit * 1 || 100;
         const skip = (page - 1) * limit;
         this.query.skip(skip).limit(limit);
         return this;
