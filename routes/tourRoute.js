@@ -20,17 +20,33 @@ tourRouter
 
 tourRouter
     .route('/tour-plan/:year')
-    .get(tourController.getMothlyPlan);
+    .get(
+        authController.protect,
+        authController.restrictTo(
+            'admin',
+            'lead-guide',
+            'guide'
+        ),
+        tourController.getMothlyPlan
+    );
 
 tourRouter
     .route('/')
-    .get(authController.protect, tourController.getAllTours)
-    .post(tourController.createTour);
+    .get(tourController.getAllTours)
+    .post(
+        authController.protect,
+        authController.restrictTo('admin', 'lead-guide'),
+        tourController.createTour
+    );
 
 tourRouter
     .route('/:id')
     .get(tourController.getTourById)
-    .patch(tourController.updateTourById)
+    .patch(
+        authController.protect,
+        authController.restrictTo('admin', 'lead-guide'),
+        tourController.updateTourById
+    )
     .delete(
         authController.protect,
         authController.restrictTo('admin', 'lead-guide'),
