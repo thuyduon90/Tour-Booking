@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, 'A user needs a name'],
-        trim: true,
+        trim: true
     },
     email: {
         type: String,
@@ -17,27 +17,27 @@ const userSchema = new mongoose.Schema({
         lowercase: true,
         validate: [
             validator.isEmail,
-            'Please provide a valid email',
-        ],
+            'Please provide a valid email'
+        ]
     },
     photo: String,
     role: {
         type: String,
         enum: ['user', 'guide', 'lead-guide', 'admin'],
-        default: 'user',
+        default: 'user'
     },
     password: {
         type: String,
         required: [true, 'Password must be required'],
         minlength: [
             8,
-            'password must be longer than 8 characters',
+            'password must be longer than 8 characters'
         ],
         maxlength: [
             40,
-            'password must be shorter than 40 characters',
+            'password must be shorter than 40 characters'
         ],
-        select: false,
+        select: false
     },
     passwordConfirm: {
         type: String,
@@ -47,8 +47,8 @@ const userSchema = new mongoose.Schema({
             validator: function(el) {
                 return el === this.password;
             },
-            message: 'Not a simmilar password!',
-        },
+            message: 'Not a simmilar password!'
+        }
     },
     passwordChangedAt: Date,
     passwordResetToken: String,
@@ -56,8 +56,8 @@ const userSchema = new mongoose.Schema({
     active: {
         type: Boolean,
         default: true,
-        select: false,
-    },
+        select: false
+    }
 });
 
 /* MIDDLEWARE */
