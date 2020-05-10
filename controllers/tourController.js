@@ -100,3 +100,85 @@ exports.getMothlyPlan = catchAsync(
         });
     }
 );
+
+exports.getTourWithin = catchAsync(
+    async(req, res, next) => {
+        const { distance, latlong, unit } = req.params;
+        const [lat, long] = latlong.split(',');
+
+        if (!lat || !long) {
+            return next(
+                new appError(
+                    'Please provide lattitute and longitude in the format <lat,long>.'
+                ),
+                400
+            );
+        }
+
+        const radius =
+            unit === 'mi' ? distance / 3963.2 : distance / 6378.1;
+
+        const tours = await Tour.find({
+            startLocation: {
+                $geoWithin: {
+                    $centerSphere: [
+                        [long, lat], radius
+                    ]
+                }
+            }
+        });
+
+        res.status(200).json({
+            status: 'success',
+            results: tours.length,
+            data: {
+                data: tours
+            }
+        });
+    }
+);
+
+exports.getDistances = catchAsync(
+    async(req, res, next) => {
+        const { latlong, unit } = req.params;
+        const [lat, long] = latlong.split(',');
+
+        if (!lat || !long) {
+            return next(
+                new appError(
+                    'Please provide lattitute and longitude in the format <lat,long>.'
+                ),
+                400
+            );
+        }
+
+        const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+        const distances = await Tour.aggregate([{
+                $geoNear: {
+                    near: {
+                        type: 'Point',
+                        coordinates: [long * 1, lat * 1]
+                    },
+                    distanceField: 'distance',
+                    distanceMultiplier: multiplier
+                }
+            },
+            {
+                $project: {
+                    distance: 1,
+                    name: 1
+                }
+            }
+        ]);
+
+        res.status(200).json({
+            status: 'success',
+            data: {
+                data: distances
+            }
+        });
+    }
+);
+
+// '/distances/:latlong/unit/:unit'
