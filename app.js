@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 
 const morgan = require('morgan');
@@ -7,15 +8,22 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 
-const AppError = require(`${__dirname}/utils/AppError`);
-const globalErrorHandler = require(`${__dirname}/controllers/errorController`);
-const tourRouter = require(`${__dirname}/routes/tourRoute`);
-const userRouter = require(`${__dirname}/routes/userRoute`);
-const reviewRouter = require(`${__dirname}/routes/reviewRoute`);
+const AppError = require('./utils/AppError');
+const globalErrorHandler = require('./controllers/errorController');
+const tourRouter = require('./routes/tourRoute');
+const userRouter = require('./routes/userRoute');
+const reviewRouter = require('./routes/reviewRoute');
+const viewRouter = require('./routes/viewRoute');
 
 const app = express();
 
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 /* GLOBAL MIDDLEWARES */
+// Serving static files
+app.use(express.static(path.join(__dirname, 'public')));
+
 //Set security HTTP headers
 app.use(helmet());
 
@@ -28,7 +36,7 @@ if (process.env.NODE_ENV === 'development') {
 const limiter = rateLimit({
     max: 200,
     windowMs: 60 * 60 * 1000,
-    message: 'Too many requests from this IP. Please try again in an hour!',
+    message: 'Too many requests from this IP. Please try again in an hour!'
 });
 app.use('/api', limiter);
 
@@ -50,8 +58,8 @@ app.use(
             'ratingsQuantity',
             'maxGroupSize',
             'difficulty',
-            'price',
-        ],
+            'price'
+        ]
     })
 );
 
@@ -62,18 +70,14 @@ app.use((req, res, next) => {
 });
 
 /* ROUTES */
+app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
 
 /* HANDLE ERROR */
 app.all('*', (req, res, next) => {
-    next(
-        new AppError(
-            `Can't find ${req.originalUrl} on this server`,
-            404
-        )
-    );
+    next(new AppError(`Can't find ${req.originalUrl} on this server`, 404));
 });
 
 app.use(globalErrorHandler);
