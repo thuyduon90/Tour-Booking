@@ -7,26 +7,14 @@ const authController = require('../controllers/authController');
 /* UNPROTECTED ROUTE */
 userRouter.post('/signup', authController.signup);
 userRouter.post('/login', authController.login);
-userRouter.post(
-    '/forgotpassword',
-    authController.forgotPassword
-);
-userRouter.patch(
-    '/resetpassword/:token',
-    authController.resetPassword
-);
+userRouter.get('/logout', authController.logout);
+userRouter.post('/forgotpassword', authController.forgotPassword);
+userRouter.patch('/resetpassword/:token', authController.resetPassword);
 
 /* PROTECTED ROUTE */
 userRouter.use(authController.protect);
-userRouter.patch(
-    '/updatepassword/',
-    authController.updatePassword
-);
-userRouter.get(
-    '/me',
-    userController.getMe,
-    userController.getUserById
-);
+userRouter.patch('/updatepassword/', authController.updatePassword);
+userRouter.get('/me', userController.getMe, userController.getUserById);
 userRouter.patch('/updateme/', userController.updateMe);
 userRouter.delete('/deleteme/', userController.deleteMe);
 
