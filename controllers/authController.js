@@ -67,7 +67,6 @@ exports.login = catchAsync(async(req, res, next) => {
     if (!email || !password) {
         return moveNextWithError('Please provide email and password', 400, next);
     }
-    console.log('heehehehehe....');
 
     const user = await User.findOne({ email }).select('password');
     if (!user || !(await user.correctPassword(password, user.password))) {
@@ -217,8 +216,6 @@ exports.updatePassword = catchAsync(async(req, res, next) => {
         return moveNextWithError('Your current password is incorrect!', 401, next);
     }
     // 3) If ok, update password
-    console.log('heheheheheh');
-
     user.password = newPassword;
     user.passwordConfirm = passwordConfirm;
     await user.save();

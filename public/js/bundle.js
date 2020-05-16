@@ -8454,6 +8454,7 @@ var logout = /*#__PURE__*/function () {
             res = _context2.sent;
 
             if (res.data.status === 'success') {
+              (0, _alert.showAlert)('success', 'Logged out successfully!');
               location.reload(true);
             }
 

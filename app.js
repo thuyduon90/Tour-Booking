@@ -69,8 +69,6 @@ app.use(
 // Test time spend on resquest
 app.use((req, res, next) => {
     req.requetTime = new Date().toISOString();
-    console.log(req.cookies);
-
     next();
 });
 
