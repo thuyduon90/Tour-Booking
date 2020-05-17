@@ -14,10 +14,8 @@ export const login = async(email, password) => {
             }
         });
         if (res.data.status === 'success') {
+            location.assign('/');
             showAlert('success', 'Logged in successfully!');
-            window.setTimeout(() => {
-                location.assign('/');
-            }, 500);
         }
     } catch (error) {
         showAlert('error', error.response.data.message);

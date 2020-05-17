@@ -1,6 +1,15 @@
 const Tour = require('./../models/tourModel');
 const catchAsync = require('./../utils/catchAsync');
 const appError = require('./../utils/appError');
+const User = require('./../models/userModel');
+
+const filterObj = (obj, ...allowedFileds) => {
+    const newObj = {};
+    Object.keys(obj).forEach(el => {
+        if (allowedFileds.includes(el)) newObj[el] = obj[el];
+    });
+    return newObj;
+};
 
 exports.getOverview = catchAsync(async(req, res) => {
     const tours = await Tour.find();
@@ -27,8 +36,30 @@ exports.getTour = catchAsync(async(req, res, next) => {
     });
 });
 
-exports.getLoginForm = catchAsync(async(req, res) => {
+exports.getLoginForm = (req, res) => {
     res.status(200).render('login', {
         title: 'Login'
+    });
+};
+
+exports.getAccount = (req, res) => {
+    res.status(200).render('account', {
+        title: req.user.name,
+        user: req.user
+    });
+};
+
+exports.updateUserData = catchAsync(async(req, res, next) => {
+    // 2) Filter out unwanted fields
+    const filteredBody = filterObj(req.body, 'name', 'email');
+    // 3) Update user document
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, filteredBody, {
+        new: true,
+        runValidators: true
+    });
+
+    res.status(200).render('account', {
+        title: updatedUser.name,
+        user: updatedUser
     });
 });

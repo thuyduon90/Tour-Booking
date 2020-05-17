@@ -4,6 +4,9 @@ const authController = require('./../controllers/authController');
 
 const viewController = require('./../controllers/viewController');
 
+viewRouter.get('/me', authController.protect, viewController.getAccount);
+viewRouter.post('/submit-user-data', authController.protect, viewController.updateUserData);
+
 viewRouter.use(authController.isLoggedIn);
 
 viewRouter.get('/', viewController.getOverview);
