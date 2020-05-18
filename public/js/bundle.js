@@ -8565,7 +8565,7 @@ var updateSetings = /*#__PURE__*/function () {
               (0, _alert.showAlert)('success', "".concat(type.toUpperCase(), " Updated successfully!"));
               window.setTimeout(function () {
                 location.reload(true);
-              }, 3000);
+              }, 2000);
             }
 
             _context.next = 11;
@@ -8881,10 +8881,12 @@ if (updateFormData) {
     e.preventDefault();
     var email = document.getElementById('email').value;
     var name = document.getElementById('name').value;
-    (0, _updateSettings.updateSetings)({
-      name: name,
-      email: email
-    }, 'data');
+    var photo = document.getElementById('photo').files[0];
+    var form = new FormData();
+    form.append('name', name);
+    form.append('email', email);
+    form.append('photo', photo);
+    (0, _updateSettings.updateSetings)(form, 'data');
   });
 }
 
@@ -8964,7 +8966,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "55237" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "62088" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};

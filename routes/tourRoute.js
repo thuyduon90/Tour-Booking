@@ -7,37 +7,22 @@ const reviewRoute = require('./../routes/reviewRoute');
 
 tourRouter.use('/:tourId/reviews', reviewRoute);
 
-tourRouter
-    .route('/top-5-cheap')
-    .get(
-        tourController.aliasTopTours,
-        tourController.getAllTours
-    );
+tourRouter.route('/top-5-cheap').get(tourController.aliasTopTours, tourController.getAllTours);
 
-tourRouter
-    .route('/tour-stats')
-    .get(tourController.getTourStats);
+tourRouter.route('/tour-stats').get(tourController.getTourStats);
 
 tourRouter
     .route('/tour-plan/:year')
     .get(
         authController.protect,
-        authController.restrictTo(
-            'admin',
-            'lead-guide',
-            'guide'
-        ),
+        authController.restrictTo('admin', 'lead-guide', 'guide'),
         tourController.getMothlyPlan
     );
 
-tourRouter
-    .route('/distances/:latlong/unit/:unit')
-    .get(tourController.getDistances);
+tourRouter.route('/distances/:latlong/unit/:unit').get(tourController.getDistances);
 
 tourRouter
-    .route(
-        '/tours-within/:distance/center/:latlong/unit/:unit'
-    )
+    .route('/tours-within/:distance/center/:latlong/unit/:unit')
     .get(tourController.getTourWithin);
 
 tourRouter
@@ -55,6 +40,8 @@ tourRouter
     .patch(
         authController.protect,
         authController.restrictTo('admin', 'lead-guide'),
+        tourController.uploadTourImages,
+        tourController.resizeTourImages,
         tourController.updateTourById
     )
     .delete(

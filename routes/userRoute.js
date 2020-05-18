@@ -1,4 +1,5 @@
 const express = require('express');
+
 const userRouter = express.Router();
 
 const userController = require('../controllers/userController');
@@ -15,7 +16,12 @@ userRouter.patch('/resetpassword/:token', authController.resetPassword);
 userRouter.use(authController.protect);
 userRouter.patch('/updatepassword/', authController.updatePassword);
 userRouter.get('/me', userController.getMe, userController.getUserById);
-userRouter.patch('/updateme/', userController.updateMe);
+userRouter.patch(
+    '/updateme/',
+    userController.uploadUserPhoto,
+    userController.resizeUserPhoto,
+    userController.updateMe
+);
 userRouter.delete('/deleteme/', userController.deleteMe);
 
 /* ONLY ADMIN CAN ACCECSS THESE ROUTES */

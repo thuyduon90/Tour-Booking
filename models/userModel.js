@@ -15,12 +15,12 @@ const userSchema = new mongoose.Schema({
         unique: [true, 'Email must be unique'],
         trim: true,
         lowercase: true,
-        validate: [
-            validator.isEmail,
-            'Please provide a valid email'
-        ]
+        validate: [validator.isEmail, 'Please provide a valid email']
     },
-    photo: String,
+    photo: {
+        type: String,
+        default: 'default.jpg'
+    },
     role: {
         type: String,
         enum: ['user', 'guide', 'lead-guide', 'admin'],
@@ -29,14 +29,8 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Password must be required'],
-        minlength: [
-            8,
-            'password must be longer than 8 characters'
-        ],
-        maxlength: [
-            40,
-            'password must be shorter than 40 characters'
-        ],
+        minlength: [8, 'password must be longer than 8 characters'],
+        maxlength: [40, 'password must be shorter than 40 characters'],
         select: false
     },
     passwordConfirm: {
@@ -77,22 +71,13 @@ userSchema.pre(/^find/, function(next) {
 
 /* INSTANCE METHOD */
 
-userSchema.methods.correctPassword = async function(
-    candidatePasswod,
-    userPassword
-) {
-    return await bcrypt.compare(
-        candidatePasswod,
-        userPassword
-    );
+userSchema.methods.correctPassword = async function(candidatePasswod, userPassword) {
+    return await bcrypt.compare(candidatePasswod, userPassword);
 };
 
-userSchema.methods.changePasswordAfter = function(
-    JWTTimestampIssued
-) {
+userSchema.methods.changePasswordAfter = function(JWTTimestampIssued) {
     if (this.passwordChangedAt) {
-        const changedTimestamp =
-            (this.passwordChangedAt.getTime() * 1) / 1000;
+        const changedTimestamp = (this.passwordChangedAt.getTime() * 1) / 1000;
         return JWTTimestampIssued < changedTimestamp;
     }
     return false;

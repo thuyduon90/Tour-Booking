@@ -29,12 +29,15 @@ if (updateFormData) {
         e.preventDefault();
         const email = document.getElementById('email').value;
         const name = document.getElementById('name').value;
-        updateSetings({
-                name,
-                email
-            },
-            'data'
-        );
+        const photo = document.getElementById('photo').files[0];
+
+        const form = new FormData();
+
+        form.append('name', name);
+        form.append('email', email);
+        form.append('photo', photo);
+
+        updateSetings(form, 'data');
     });
 }
 
