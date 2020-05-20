@@ -12,5 +12,6 @@ viewRouter.use(authController.isLoggedIn);
 viewRouter.get('/', viewController.getOverview);
 viewRouter.get('/tour/:slug', viewController.getTour);
 viewRouter.get('/login', viewController.getLoginForm);
+viewRouter.get('/signup', viewController.getSignupForm);
 
 module.exports = viewRouter;

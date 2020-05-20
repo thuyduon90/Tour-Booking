@@ -8373,7 +8373,7 @@ exports.showAlert = showAlert;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.logout = exports.login = void 0;
+exports.signup = exports.logout = exports.login = void 0;
 
 var _axios = _interopRequireDefault(require("axios"));
 
@@ -8478,6 +8478,59 @@ var logout = /*#__PURE__*/function () {
 }();
 
 exports.logout = logout;
+
+var signup = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(name, email, password, passwordConfirm) {
+    var res;
+    return regeneratorRuntime.wrap(function _callee3$(_context3) {
+      while (1) {
+        switch (_context3.prev = _context3.next) {
+          case 0:
+            _context3.prev = 0;
+            _context3.next = 3;
+            return (0, _axios.default)({
+              method: 'POST',
+              url: 'http://localhost:4000/api/v1/users/signup',
+              data: {
+                name: name,
+                email: email,
+                password: password,
+                passwordConfirm: passwordConfirm
+              }
+            });
+
+          case 3:
+            res = _context3.sent;
+
+            if (res.data.status === 'success') {
+              (0, _alert.showAlert)('success', 'Your account has been created and logged in successfully!');
+              window.setTimeout(function () {
+                location.assign('/');
+              }, 2000);
+            }
+
+            _context3.next = 10;
+            break;
+
+          case 7:
+            _context3.prev = 7;
+            _context3.t0 = _context3["catch"](0);
+            (0, _alert.showAlert)('error', _context3.t0.response.data.message);
+
+          case 10:
+          case "end":
+            return _context3.stop();
+        }
+      }
+    }, _callee3, null, [[0, 7]]);
+  }));
+
+  return function signup(_x3, _x4, _x5, _x6) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+
+exports.signup = signup;
 },{"axios":"../../node_modules/axios/index.js","./alert":"alert.js"}],"mapbox.js":[function(require,module,exports) {
 "use strict";
 
@@ -8862,6 +8915,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // DOM ELEMENTS
 var mapbox = document.getElementById('map');
 var loginForm = document.querySelector('.form--login');
+var signupForm = document.querySelector('.form--signup');
 var logOutBtn = document.querySelector('.nav__el--logout');
 var updateFormData = document.querySelector('.form-user-data');
 var updateFormPassword = document.querySelector('.form-user-password'); // VALUES
@@ -8873,6 +8927,17 @@ if (loginForm) {
     var email = document.getElementById('email').value;
     var password = document.getElementById('password').value;
     (0, _login.login)(email, password);
+  });
+}
+
+if (signupForm) {
+  signupForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = document.getElementById('email').value;
+    var name = document.getElementById('name').value;
+    var password = document.getElementById('password').value;
+    var passwordConfirm = document.getElementById('passwordConfirm').value;
+    (0, _login.signup)(name, email, password, passwordConfirm);
   });
 }
 
