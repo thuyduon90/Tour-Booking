@@ -2,6 +2,7 @@ const Tour = require('./../models/tourModel');
 const catchAsync = require('./../utils/catchAsync');
 const appError = require('./../utils/appError');
 const User = require('./../models/userModel');
+const Booking = require('./../models/bookingModel');
 
 const filterObj = (obj, ...allowedFileds) => {
     const newObj = {};
@@ -54,6 +55,19 @@ exports.getAccount = (req, res) => {
         user: req.user
     });
 };
+
+exports.getMyTour = catchAsync(async(req, res) => {
+    // 1) Find all bookings
+    const bookings = await Booking.find({ user: req.user.id });
+
+    // 2) Find tours with the returned IDs
+    const tourIDs = bookings.map(el => el.tour);
+    const tours = await Tour.find({ _id: { $in: tourIDs } });
+    res.status(200).render('overview', {
+        title: 'My Booked Tours',
+        tours
+    });
+});
 
 exports.updateUserData = catchAsync(async(req, res, next) => {
     // 2) Filter out unwanted fields
