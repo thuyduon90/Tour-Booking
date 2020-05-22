@@ -12,10 +12,6 @@ dotenv.config({ path: './config.env' });
 
 const DB = process.env.DATABASE.replace('<PASSWORD>', process.env.DATABASE_PASSWORD);
 
-console.log('here--------------------------');
-
-console.log(DB);
-
 mongoose;
 mongoose
     .connect(DB, {
