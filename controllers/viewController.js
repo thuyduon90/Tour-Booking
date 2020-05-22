@@ -44,8 +44,6 @@ exports.getLoginForm = (req, res) => {
 };
 
 exports.getSignupForm = (req, res) => {
-    console.log('------This is signup page-------');
-
     res.status(200).render('signupPage', {
         title: 'Signup'
     });
