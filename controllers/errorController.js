@@ -1,4 +1,4 @@
-const appError = require(`${__dirname}/../utils/appError`);
+const appError = require('./../utils/appError');
 
 const handleCastErrorDB = error => {
     return new appError(`invalid ${error.path}, please double check your ${error.path}!`, 400);
