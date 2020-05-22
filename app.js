@@ -8,6 +8,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 
 const AppError = require('./utils/AppError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -67,6 +68,8 @@ app.use(
         ]
     })
 );
+
+app.use(compression());
 
 // Test time spend on resquest
 app.use((req, res, next) => {
