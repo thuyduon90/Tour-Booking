@@ -1,9 +1,9 @@
 const express = require('express');
 const tourRouter = express.Router();
 
-const tourController = require('./../controllers/tourController');
-const authController = require('./../controllers/authController');
-const reviewRoute = require('./../routes/reviewRoute');
+const tourController = require('../controllers/tourController');
+const authController = require('../controllers/authController');
+const reviewRoute = require('../routes/reviewRoute');
 
 tourRouter.use('/:tourId/reviews', reviewRoute);
 

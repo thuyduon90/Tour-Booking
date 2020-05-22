@@ -1,10 +1,10 @@
 const crypto = require('crypto');
 const { promisify } = require('util');
 const jwt = require('jsonwebtoken');
-const User = require('./../models/userModel');
-const catchAsync = require(`./../utils/catchAsync`);
-const appError = require('./../utils/appError');
-const Email = require('./../utils/email');
+const User = require('../models/userModel');
+const catchAsync = require(`../utils/catchAsync`);
+const appError = require('../utils/appError');
+const Email = require('../utils/email');
 
 /* **************LOCAL FUNCTIONS************************
  ********************************************************

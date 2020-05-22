@@ -2,7 +2,7 @@ const express = require('express');
 const bookingRouter = express.Router();
 
 const bookingController = require('../controllers/bookingController');
-const authController = require('./../controllers/authController');
+const authController = require('../controllers/authController');
 
 bookingRouter.use(authController.protect);
 

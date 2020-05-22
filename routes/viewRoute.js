@@ -1,9 +1,9 @@
 const express = require('express');
 const viewRouter = express.Router();
-const authController = require('./../controllers/authController');
-const bookingController = require('./../controllers/bookingController');
+const authController = require('../controllers/authController');
+const bookingController = require('../controllers/bookingController');
 
-const viewController = require('./../controllers/viewController');
+const viewController = require('../controllers/viewController');
 
 viewRouter.get('/me', authController.protect, viewController.getAccount);
 viewRouter.get('/my-tours', authController.protect, viewController.getMyTour);

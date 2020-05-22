@@ -1,8 +1,8 @@
-const Tour = require('./../models/tourModel');
-const catchAsync = require('./../utils/catchAsync');
-const appError = require('./../utils/appError');
-const User = require('./../models/userModel');
-const Booking = require('./../models/bookingModel');
+const Tour = require('../models/tourModel');
+const catchAsync = require('../utils/catchAsync');
+const appError = require('../utils/appError');
+const User = require('../models/userModel');
+const Booking = require('../models/bookingModel');
 
 const filterObj = (obj, ...allowedFileds) => {
     const newObj = {};

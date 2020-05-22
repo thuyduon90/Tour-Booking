@@ -1,5 +1,5 @@
-const catchAsync = require('./../utils/catchAsync');
-const appError = require('./../utils/appError');
+const catchAsync = require('../utils/catchAsync');
+const appError = require('../utils/appError');
 const APIFeatures = require('../utils/apiFeatures');
 
 exports.deleteOne = Model =>
@@ -7,12 +7,7 @@ exports.deleteOne = Model =>
         const id = req.params.id;
         const doc = await Model.findByIdAndDelete(id);
         if (!doc) {
-            return next(
-                new appError(
-                    'There is no any document with that ID',
-                    404
-                )
-            );
+            return next(new appError('There is no any document with that ID', 404));
         }
         res.status(204).json({
             status: 'successfully deleted',
@@ -30,12 +25,7 @@ exports.updateOne = Model =>
             runValidators: true
         });
         if (doc === null) {
-            return next(
-                new appError(
-                    'There is no any document with that ID',
-                    404
-                )
-            );
+            return next(new appError('There is no any document with that ID', 404));
         }
         res.status(200).json({
             status: 'successfully updated',
@@ -65,12 +55,7 @@ exports.getOne = (Model, popOptions) =>
         const doc = await query;
 
         if (doc === null) {
-            return next(
-                new appError(
-                    'There is no any document with that ID',
-                    404
-                )
-            );
+            return next(new appError('There is no any document with that ID', 404));
         }
         res.status(200).json({
             status: 'success',
@@ -85,13 +70,9 @@ exports.getAll = Model =>
     catchAsync(async(req, res, next) => {
         //To allow for nested GET reviews on tour
         let filter = {};
-        if (req.params.tourId)
-            filter = { tour: req.params.tourId };
+        if (req.params.tourId) filter = { tour: req.params.tourId };
 
-        const feature = new APIFeatures(
-            Model.find(filter),
-            req.query
-        );
+        const feature = new APIFeatures(Model.find(filter), req.query);
         /* GENERATE QUERY */
         const query = feature
             .filterKeyword()
