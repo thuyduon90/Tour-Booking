@@ -5,6 +5,7 @@ import { login, logout, signup } from './login';
 import { displayMap } from './mapbox';
 import { updateSetings } from './updateSettings';
 import { bookTour } from './stripe';
+import { showAlert } from './alert';
 
 // DOM ELEMENTS
 const mapbox = document.getElementById('map');
@@ -94,4 +95,5 @@ if (bookBtn) {
     });
 }
 
-// console.log(JSON.parse(locations));
+const alertMessage = document.querySelector('body').dataset.alert;
+if (alertMessage) showAlert('success', alertMessage, 20);
