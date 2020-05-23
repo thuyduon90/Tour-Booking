@@ -11,7 +11,7 @@ viewRouter.post('/submit-user-data', authController.protect, viewController.upda
 
 viewRouter.get(
     '/',
-    bookingController.createBookingCheckout,
+    // bookingController.createBookingCheckout,
     authController.isLoggedIn,
     viewController.getOverview
 );
