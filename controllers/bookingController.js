@@ -55,11 +55,6 @@ const createBookingCheckout = async session => {
     const tour = session.client_reference_id;
     const user = (await User.findOne({ email: session.customer_email })).id;
     const price = session.display_items[0].amount / 100;
-    Booking.on('index', function(error) {
-        console.log('here--------------------------');
-
-        console.log(error.message);
-    });
     await Booking.create({ tour, user, price });
 };
 
@@ -78,6 +73,26 @@ exports.webhookCheckout = (req, res, next) => {
         });
     }
 };
+
+exports.isBooked = catchAsync(async(req, res, next) => {
+    // 1) get user id and tour id
+    if (!req.user) return next();
+    const user = req.user.id;
+    const tour = (await Tour.findOne({ slug: req.params.slug })).id;
+    const bookings = await Booking.find({ user });
+    if (bookings.length === 0) return next();
+    bookings.forEach(el => {
+        if (el.tour === tour) {
+            return (res.locals.isBooked = true);
+        }
+    });
+
+    next();
+
+    // 2)check in database
+
+    //
+});
 
 exports.getBookingById = factory.getOne(Booking);
 exports.getAllBookings = factory.getAll(Booking);
