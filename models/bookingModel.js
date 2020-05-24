@@ -37,6 +37,8 @@ bookingSchema.pre(/^find/, function(next) {
 });
 
 bookingSchema.on('index', function(error) {
+    console.log('here--------------------------');
+
     console.log(error.message);
 });
 
