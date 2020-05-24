@@ -22,8 +22,8 @@ const createSendToken = (user, statusCode, req, res) => {
     /* Set cookie options */
     const cookieOptions = {
         expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 1000 * 3600 * 24),
-        httpOnly: true
-            // secure: req.secure || req.headers('x-forwarded-poto') === 'https'
+        httpOnly: true,
+        secure: req.secure || req.headers('x-forwarded-poto') === 'https'
     };
     /* Send cookie to client */
     res.cookie('jwt', token, cookieOptions);
