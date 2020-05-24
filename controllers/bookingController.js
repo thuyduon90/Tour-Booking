@@ -80,9 +80,13 @@ exports.isBooked = catchAsync(async(req, res, next) => {
     const user = req.user.id;
     const tour = (await Tour.findOne({ slug: req.params.slug })).id;
     const bookings = await Booking.find({ user });
+    console.log(bookings);
+
     if (bookings.length === 0) return next();
     bookings.forEach(el => {
-        if (el.tour === tour) {
+        console.log(el.tour.id);
+
+        if (el.tour.id === tour) {
             return (res.locals.isBooked = true);
         }
     });
