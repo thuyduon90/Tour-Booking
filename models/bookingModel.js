@@ -36,12 +36,6 @@ bookingSchema.pre(/^find/, function(next) {
     next();
 });
 
-bookingSchema.on('index', function(error) {
-    console.log('here--------------------------');
-
-    console.log(error.message);
-});
-
 const Booking = mongoose.model('Booking', bookingSchema);
 
 module.exports = Booking;
